@@ -1,48 +1,123 @@
 'use strict';
 
 // чекбокс
-
-let checkbox = document.querySelector('#discount-checkbox');
-checkbox.addEventListener('change', function () {
-    this.nextElementSibling.classList.toggle('checked');
-})
-console.log();
+function toogleCheckbox() {
+    let checkbox = document.querySelector('#discount-checkbox');
+    checkbox.addEventListener('change', function () {
+        this.nextElementSibling.classList.toggle('checked');
+    });
+}
 
 // корзина
-const basket = document.querySelector('#cart');
-const modalCart = document.querySelector('.cart');
-const modalClose = document.querySelector('.cart-close');
+function toogleCart() {
+    const basket = document.querySelector('#cart');
+    const modalCart = document.querySelector('.cart');
+    const modalClose = document.querySelector('.cart-close');
 
-basket.addEventListener('click', () => {
-    modalCart.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-});
+    basket.addEventListener('click', () => {
+        modalCart.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    });
 
-modalClose.addEventListener('click', () => {
-    modalCart.style.display = 'none';
-    document.body.style.overflow = '';
-});
+    modalClose.addEventListener('click', () => {
+        modalCart.style.display = 'none';
+        document.body.style.overflow = '';
+    });
+}
+
 
 // карточки
-const cards = document.querySelectorAll('.goods .card');
-const cartWrapper = document.querySelector('.cart-wrapper');
-const cartEmpty = document.querySelector('#cart-empty');
-const counter = document.querySelector('.counter');
-
-cards.forEach((elem) => {
-    const cardBtn = elem.querySelector('button');
-
-    cardBtn.addEventListener('click', () => {
-        const cardClone = elem.cloneNode(true);
-        cartWrapper.appendChild(cardClone);
-        cartEmpty.remove();
-        showData();
+function addCart() {
+    const cards = document.querySelectorAll('.goods .card');
+    const cartEmpty = document.querySelector('#cart-empty');
+    const counter = document.querySelector('.counter');
+    const cartWrapper = document.querySelector('.cart-wrapper');
+    
+    cards.forEach((elem) => {
+        const cardBtn = elem.querySelector('button');
+        
+    
+        cardBtn.addEventListener('click', () => {
+            const cardClone = elem.cloneNode(true);
+            const removeBtn = cardClone.querySelector('button');
+    
+            cartWrapper.appendChild(cardClone);
+            showData();
+            removeBtn.textContent = 'Удалить из корзины';
+    
+            removeBtn.addEventListener('click', () => {
+                cardClone.remove();
+                showData();
+            })
+        });
     });
-});
 
-// количество товаров в корзине
+    
+    // количество товаров в корзине
+    function showData () {
 
-function showData () {
-    const cardsCart = cartWrapper.querySelectorAll('.card');
-    counter.textContent = cardsCart.length;
-}
+        const cardsCart = cartWrapper.querySelectorAll('.card');
+        const cardTotal = document.querySelector('.cart-total span');
+        const cardsPrice = cartWrapper.querySelectorAll('.card-price');
+        let sum = 0;
+        counter.textContent = cardsCart.length;
+
+        cardsPrice.forEach((elem) => {
+            let price = parseFloat(elem.textContent);
+            sum += price;
+        });
+        cardTotal.textContent = sum;
+
+        if (cardsCart.length !== 0) {
+            cartEmpty.remove();
+        } else {
+            cartWrapper.appendChild(cartEmpty);
+        }
+    };
+};
+
+function filter () {
+    const checkbox = document.querySelector('#discount-checkbox');
+    const cards = document.querySelectorAll('.goods .card');
+    const min = document.querySelector('#min');
+    const max = document.querySelector('#max');
+
+    // фильтр акции
+    function filterSale () {
+        cards.forEach((elem) => {
+            if (checkbox.checked){
+                if (!elem.querySelector('.card-sale')) {
+                    elem.parentNode.style.display = 'none';
+                }
+            } else {
+                elem.parentNode.style.display = '';
+            }
+        });
+    };
+
+    checkbox.addEventListener('click', filterSale);
+
+    // фильтр цены 
+    function filterPrice () {
+        cards.forEach((elem) => {
+            const cardPrice = elem.querySelector('.card-price');
+            const price = parseFloat(cardPrice.textContent);
+            console.log(price);
+            if ((min.value && price < min.value) || (max.value && price > max.value)) {
+                elem.parentNode.style.display = 'none';
+            } else {
+                elem.parentNode.style.display = '';
+            }
+        });
+    };
+    
+    min.addEventListener('change', filterPrice);
+    max.addEventListener('change', filterPrice);
+};
+
+
+toogleCheckbox();
+toogleCart();
+addCart();
+filter();
+console.log();
