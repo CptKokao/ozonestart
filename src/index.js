@@ -81,6 +81,8 @@ function filter () {
     const cards = document.querySelectorAll('.goods .card');
     const min = document.querySelector('#min');
     const max = document.querySelector('#max');
+    const searchInput = document.querySelector('.search-wrapper_input');
+    const searchBtn = document.querySelector('.search-btn');
 
     // фильтр акции
     function filterSale () {
@@ -113,6 +115,21 @@ function filter () {
     
     min.addEventListener('change', filterPrice);
     max.addEventListener('change', filterPrice);
+
+    // фильтр по тексту
+    function searchText () {
+        const text = new RegExp(searchInput.value.trim(), 'i');
+        cards.forEach((elem) => {
+            const cardTitle = elem.querySelector('.card-title');
+            if (!text.test(cardTitle.textContent)) {
+                elem.parentNode.style.display = 'none';
+            } else {
+                elem.parentNode.style.display = '';
+            }
+        });
+    }
+
+    searchBtn.addEventListener('click', searchText);
 };
 
 
