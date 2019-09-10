@@ -85,21 +85,6 @@ function filterPage () {
     const searchInput = document.querySelector('.search-wrapper_input');
     const searchBtn = document.querySelector('.search-btn');
 
-    // фильтр акции и цены
-    function filter () {
-        cards.forEach((el) => {
-            const cardPrice = el.querySelector('.card-price');
-            const price = parseFloat(cardPrice.textContent);
-
-            if ((min.value && price < min.value) || (max.value && price > max.value)) {
-                el.parentNode.style.display = 'none';
-            } else if (checkbox.checked && !el.querySelector('.card-sale')){
-                el.parentNode.style.display = 'none';
-            } else {
-                el.parentNode.style.display = '';
-            }
-        });
-    };
 
     checkbox.addEventListener('click', filter);
     min.addEventListener('change', filter);
@@ -119,6 +104,37 @@ function filterPage () {
     }
 
     searchBtn.addEventListener('click', searchText);
+};
+
+
+
+// фильтр акции и цены
+function filter () {
+    const cards = document.querySelectorAll('.goods .card');
+    const activeLi = document.querySelector('.catalog-list li.active');
+    const checkbox = document.querySelector('#discount-checkbox');
+    const min = document.querySelector('#min');
+    const max = document.querySelector('#max');
+    console.log(activeLi);
+
+    cards.forEach((el) => {
+        const cardPrice = el.querySelector('.card-price');
+        const cardSale = el.querySelector('.card-sale');
+        const price = parseFloat(cardPrice.textContent);
+
+        el.parentNode.style.display = '';
+
+        if ((min.value && price < min.value) || (max.value && price > max.value)) {
+            el.parentNode.style.display = 'none';
+        }  else if (checkbox.checked && !cardSale){
+            el.parentNode.style.display = 'none';
+        } else if (activeLi) {
+            if (activeLi.textContent !== el.dataset.category) {
+                el.parentNode.style.display = 'none';
+            }
+        }
+        
+    });
 };
 
 // получение данных
@@ -173,6 +189,7 @@ function catalog () {
     const catalog = document.querySelector('.catalog');
     const catalogBtn = document.querySelector('.catalog-button');
     const catalogList = document.querySelector('.catalog-list');
+    const filterTitle = document.querySelector('.filter-title h5');
 
     cards.forEach((el) => {
         categories.add(el.dataset.category);
@@ -184,6 +201,8 @@ function catalog () {
         catalogList.appendChild(li);
     });
 
+    const allLi = catalogList.querySelectorAll('LI');
+
     catalogBtn.addEventListener('click', (evt) => {
         if (catalog.style.display) {
             catalog.style.display = '';
@@ -192,26 +211,26 @@ function catalog () {
         }
         
         if (evt.target.tagName === 'LI') {
-            cards.forEach((el) => {
-                if (evt.target.textContent !== el.dataset.category) {
-                    el.parentNode.style.display = 'none';
+            filterTitle.textContent = evt.target.textContent;
+            allLi.forEach((el) => {
+                if (evt.target === el) {
+                    el.classList.add('active');
                 } else {
-                    el.parentNode.style.display = '';
+                    el.classList.remove('active');
                 }
             });
+            filter();
         }
-
     });
-
 }
 
 getData().then(data => {
     renderData (data);
+    filterPage();
+    catalog();
     toogleCheckbox();
     toogleCart();
     addCart();
-    filterPage();
-    catalog();
 });
 
 console.log();
